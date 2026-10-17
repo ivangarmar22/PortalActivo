@@ -1,0 +1,16 @@
+// Despliegue del frontend en Cloudflare (Workers con recursos estáticos). Ver docs/despliegue.md.
+{
+  "name": "portalactivo",
+  "account_id": "711e789b270dcaba21e68f702f00b0e3",
+  "compatibility_date": "2026-10-17",
+  "main": "./worker/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Rutas de React Router (/portal, /admin/...): se sirve index.html
+    "not_found_handling": "single-page-application",
+    // Las páginas pasan por el Worker (redirección a HTTPS); los archivos de /assets se sirven directamente.
+    "run_worker_first": ["/*", "!/assets/*"],
+  },
+  "observability": { "enabled": true },
+}

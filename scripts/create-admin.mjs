@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Alta controlada de un administrador (procedimiento fuera del navegador).
-// Usa la clave service_role de .env.local: NUNCA la expongas en el frontend ni la subas al repositorio.
+// Usa la clave service_role de .env.local (o de .env.production.local con --mode production):
+// NUNCA la expongas en el frontend ni la subas al repositorio.
 //
 // Uso:
-//   node scripts/create-admin.mjs --email ana@ejemplo.com --name "Ana Pérez" --community <uuid> [--password ...]
+//   node scripts/create-admin.mjs --email ana@ejemplo.com --name "Ana Pérez" --community <uuid> [--password ...] [--mode production]
 //
 // Si el usuario ya existe, solo se le asigna la comunidad. Sin --password se genera una contraseña aleatoria.
 import { randomBytes } from 'node:crypto'
@@ -11,25 +12,27 @@ import { parseArgs } from 'node:util'
 import { createClient } from '@supabase/supabase-js'
 import { loadEnv } from 'vite'
 
-const env = loadEnv('development', process.cwd(), '')
-const url = env.VITE_SUPABASE_URL
-const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY
-
 const { values } = parseArgs({
   options: {
     email: { type: 'string' },
     name: { type: 'string' },
     community: { type: 'string' },
     password: { type: 'string' },
+    mode: { type: 'string', default: 'development' },
   },
 })
+
+const env = loadEnv(values.mode, process.cwd(), '')
+const url = env.VITE_SUPABASE_URL
+const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY
 
 function fail(message) {
   console.error(`✗ ${message}`)
   process.exit(1)
 }
 
-if (!url || !serviceKey) fail('Faltan VITE_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en .env.local')
+if (!url || !serviceKey) fail('Faltan VITE_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY')
+console.log(`· Supabase: ${url}`)
 if (!values.email || !values.name || !values.community) {
   fail(
     'Uso: node scripts/create-admin.mjs --email <email> --name "<nombre>" --community <uuid> [--password <contraseña>]',

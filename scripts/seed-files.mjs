@@ -1,20 +1,25 @@
 #!/usr/bin/env node
 // Genera PDF de demostración para cada archivo que referencian los datos de prueba
 // (documentos, recibos y adjuntos de avisos) y los sube al bucket privado «community-files».
-// Usa la clave service_role de .env.local: solo para el entorno local.
+// Usa la clave service_role de .env.local. Contra un proyecto en la nube hay que pedirlo
+// explícitamente con --mode production (lee .env.production.local).
+import { parseArgs } from 'node:util'
 import { createClient } from '@supabase/supabase-js'
 import { jsPDF } from 'jspdf'
 import { loadEnv } from 'vite'
 
-const env = loadEnv('development', process.cwd(), '')
+const { values: args } = parseArgs({
+  options: { mode: { type: 'string', default: 'development' } },
+})
+const env = loadEnv(args.mode, process.cwd(), '')
 const url = env.VITE_SUPABASE_URL
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY
 if (!url || !serviceKey) {
-  console.error('✗ Faltan VITE_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en .env.local')
+  console.error('✗ Faltan VITE_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY')
   process.exit(1)
 }
-if (!/127\.0\.0\.1|localhost/.test(url)) {
-  console.error('✗ Este script solo se ejecuta contra Supabase local')
+if (args.mode !== 'production' && !/127\.0\.0\.1|localhost/.test(url)) {
+  console.error('✗ Para un proyecto en la nube, ejecútalo con --mode production')
   process.exit(1)
 }
 

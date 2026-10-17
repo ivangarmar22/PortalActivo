@@ -14,9 +14,12 @@ test-results
 !.env.example
 *.local
 
+# Cloudflare (caché local de Wrangler)
+.wrangler
+
 # Supabase local
-supabase/.temp
-supabase/.branches
+**/supabase/.temp
+**/supabase/.branches
 
 # Sistema y editores
 .DS_Store

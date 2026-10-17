@@ -4,6 +4,8 @@
 
 Portal web para comunidades de propietarios. Esta instalación de demostración es la de **Terrazas del Cañaveral**, administrada por Raúl.
 
+**Demo en línea:** https://portalactivo.portalactivo.workers.dev
+
 | Módulo                   | Vecinos                                                                                    | Administración                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
 | **Juntas y votaciones**  | Votar y cambiar el voto mientras la pregunta está abierta; resultados tras el cierre; acta | Juntas, preguntas, apertura y cierre (individual y global), resultados en vivo, CSV y PDF |
@@ -72,6 +74,18 @@ npm run admin:create -- --email ana@ejemplo.com --name "Ana Pérez" --community 
 
 El script usa `SUPABASE_SERVICE_ROLE_KEY` de `.env.local`, crea el usuario ya confirmado y lo asigna a la comunidad. Si no pasas `--password`, genera una contraseña aleatoria.
 
+## Despliegue
+
+La demo está en Cloudflare Workers (frontend estático) y Supabase Cloud (base de datos, Auth, Storage y Realtime). Con el proyecto ya enlazado (`npx supabase link`) y `.env.production.local` creado:
+
+```bash
+npm run db:push             # migraciones nuevas a Supabase
+npm run db:config -- --project-ref <ref>   # ajustes de Auth de deploy/supabase/config.toml
+npm run deploy              # compila con las variables de producción y publica en Cloudflare
+```
+
+Paso a paso, opciones de alojamiento, costes y auditoría: [docs/despliegue.md](docs/despliegue.md).
+
 ## Scripts
 
 | Comando                                                       | Qué hace                                                                    |
@@ -87,7 +101,9 @@ El script usa `SUPABASE_SERVICE_ROLE_KEY` de `.env.local`, crea el usuario ya co
 | `npm run check`                                               | Todo lo anterior salvo E2E; deja la BD con los datos de demostración        |
 | `npm run db:start` / `db:stop` / `db:reset`                   | Supabase local                                                              |
 | `npm run db:types`                                            | Regenera `src/types/database.ts` desde el esquema                           |
-| `npm run admin:create`                                        | Alta de un administrador (ver arriba)                                       |
+| `npm run admin:create`                                        | Alta de un administrador (ver arriba; `--mode production` para la nube)     |
+| `npm run deploy`                                              | Publica el frontend en Cloudflare                                           |
+| `npm run db:push` / `npm run db:config`                       | Migraciones y ajustes de Auth del proyecto en la nube                       |
 
 La primera vez que lances las pruebas E2E, instala el navegador con `npx playwright install chromium`.
 
@@ -115,7 +131,9 @@ supabase/
   migrations/     esquema, autorización (RLS), RPC, Storage y módulos
   tests/database  pgTAP
   seed.sql        datos ficticios (seed_modules.sql para los módulos)
-scripts/          alta de administradores y PDF de demostración
+scripts/          alta de administradores y PDF de demostración (--mode production para la nube)
+deploy/           ajustes de Auth del proyecto de Supabase en la nube
+worker/           Worker de Cloudflare: redirección a HTTPS delante de los archivos estáticos
 e2e/              Playwright
 docs/             modelo de datos, seguridad y privacidad, diseño, usuarios demo, evolución
 ```

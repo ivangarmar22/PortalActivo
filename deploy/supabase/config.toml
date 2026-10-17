@@ -1,0 +1,23 @@
+# Ajustes de Auth del proyecto en la nube. Solo declara lo que cambia respecto a los valores
+# por defecto de Supabase; lo que no aparece aquí no se toca. Aplicar con:
+#   npx supabase config diff --workdir deploy --project-ref <ref>
+#   npx supabase config push --workdir deploy --project-ref <ref>
+project_id = "portalactivo"
+
+[auth]
+site_url = "https://portalactivo.portalactivo.workers.dev"
+enable_signup = true
+enable_anonymous_sign_ins = true
+minimum_password_length = 8
+
+[auth.rate_limit]
+# Límite por IP: en una junta, los vecinos conectados a la misma wifi comparten IP.
+anonymous_users = 300
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+
+# Las conexiones directas a PostgreSQL (CLI, herramientas) solo con TLS. La API no se ve afectada.
+[db.ssl_enforcement]
+enabled = true
