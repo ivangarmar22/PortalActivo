@@ -1,0 +1,5 @@
+-- Este archivo no se ejecuta solo: documenta el patrón que repiten los tests.
+-- Para simular un usuario se fija el rol y los claims del JWT dentro de la transacción:
+--   select set_config('request.jwt.claims', '{"sub":"<uuid>","role":"authenticated","is_anonymous":false}', true);
+--   set local role authenticated;
+-- y se vuelve a postgres con `reset role`.

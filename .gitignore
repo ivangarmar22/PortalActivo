@@ -1,0 +1,27 @@
+# Dependencias y compilación
+node_modules
+dist
+*.tsbuildinfo
+
+# Pruebas
+coverage
+playwright-report
+test-results
+
+# Variables de entorno (solo se versiona la plantilla)
+.env
+.env.*
+!.env.example
+*.local
+
+# Supabase local
+supabase/.temp
+supabase/.branches
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.log

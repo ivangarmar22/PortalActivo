@@ -1,0 +1,272 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/instrument-sans';
+@import '@fontsource-variable/fraunces/opsz.css';
+@import '@fontsource-variable/fraunces/opsz-italic.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * PortalActivo · Sistema de diseño «Editorial residencial»
+ * - Papel cálido como fondo, tinta verde profunda para el cromo (barra lateral, cabeceras) y
+ *   latón como acento, tomado del logo de la comunidad (#AB8D39).
+ * - Fraunces (serif con óptica variable) para titulares y cifras; Instrument Sans para la interfaz.
+ * - Profundidad con sombras suaves en capas y bordes cálidos, no tarjetas planas idénticas.
+ * - Estados semánticos con icono + texto + color; el color nunca va solo.
+ */
+:root {
+  --radius: 0.75rem;
+
+  /* Superficies */
+  --background: #f4f1e8;
+  --sunken: #ebe6d9;
+  --foreground: #182326;
+  --card: #ffffff;
+  --card-foreground: #182326;
+  --popover: #ffffff;
+  --popover-foreground: #182326;
+  --border: #e2dccd;
+  --input: #d2cab8;
+  --muted: #efebe1;
+  --muted-foreground: #5a6265;
+
+  /* Marca */
+  --primary: #0f4c51;
+  --primary-foreground: #ffffff;
+  --primary-soft: #e1ecea;
+  --ink: #0e2a2c;
+  --ink-raised: #153a3d;
+  --ink-foreground: #eee9dd;
+  --ink-muted: #93aba8;
+  --ink-border: #21484b;
+  --brass: #ab8d39;
+  --brass-bright: #cdae55;
+  --brass-ink: #765e1d;
+  --brass-soft: #f3ebd3;
+
+  --secondary: #ebe6d9;
+  --secondary-foreground: #182326;
+  --accent: #eef3f1;
+  --accent-foreground: #0b3b3f;
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --ring: #1f6f75;
+
+  /* Estados */
+  --status-draft: #8a5300;
+  --status-draft-bg: #fbefd5;
+  --status-open: #116632;
+  --status-open-bg: #e0f3e6;
+  --status-closed: #3f4752;
+  --status-closed-bg: #eaecef;
+  --status-progress: #0f4c51;
+  --status-progress-bg: #e1ecea;
+  --status-info: #285a8c;
+  --status-info-bg: #e3edf7;
+  --status-danger: #a1271b;
+  --status-danger-bg: #fbe7e4;
+
+  /* Gráficos: un tono principal + énfasis */
+  --chart-1: #0f4c51;
+  --chart-2: #4f8f94;
+  --chart-3: #c9dcdc;
+  --chart-4: #ab8d39;
+  --chart-5: #5a6265;
+
+  --shadow-card:
+    0 1px 0 rgb(24 35 38 / 0.03), 0 1px 2px rgb(24 35 38 / 0.05),
+    0 10px 28px -18px rgb(24 35 38 / 0.28);
+  --shadow-raised: 0 1px 2px rgb(24 35 38 / 0.06), 0 18px 40px -20px rgb(14 42 44 / 0.45);
+
+  /* Retícula hexagonal inspirada en el logo de la comunidad (decorativa, muy tenue) */
+  --pattern-lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='98' viewBox='0 0 56 98'%3E%3Cpath d='M28 66 0 50V16L28 0l28 16v34L28 66Zm0 32L0 82V66l28 16 28-16v16L28 98Z' fill='none' stroke='%23cdae55' stroke-opacity='.16'/%3E%3C/svg%3E");
+}
+
+@theme inline {
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-sunken: var(--sunken);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-border: var(--ink-border);
+  --color-brass: var(--brass);
+  --color-brass-bright: var(--brass-bright);
+  --color-brass-ink: var(--brass-ink);
+  --color-brass-soft: var(--brass-soft);
+
+  --color-status-draft: var(--status-draft);
+  --color-status-draft-bg: var(--status-draft-bg);
+  --color-status-open: var(--status-open);
+  --color-status-open-bg: var(--status-open-bg);
+  --color-status-closed: var(--status-closed);
+  --color-status-closed-bg: var(--status-closed-bg);
+  --color-status-progress: var(--status-progress);
+  --color-status-progress-bg: var(--status-progress-bg);
+  --color-status-info: var(--status-info);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-bg: var(--status-danger-bg);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'ss01' 1;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  ::selection {
+    background: var(--brass-soft);
+    color: var(--foreground);
+  }
+  /*
+   * Mano sobre todo lo pulsable. El preflight de Tailwind 4 deja los botones con la flecha;
+   * aquí se restaura para botones, controles con rol ARIA, selectores y etiquetas de casillas.
+   * Las utilidades (cursor-*) siguen pudiendo sobrescribirlo.
+   */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab']:not([aria-disabled='true']),
+  [role='radio']:not([aria-disabled='true']),
+  [role='checkbox']:not([aria-disabled='true']),
+  [role='switch']:not([aria-disabled='true']),
+  [role='menuitem']:not([data-disabled]),
+  [role='menuitemradio']:not([data-disabled]),
+  [role='menuitemcheckbox']:not([data-disabled]),
+  [role='option']:not([data-disabled]),
+  select:not(:disabled),
+  summary,
+  input:is([type='checkbox'], [type='radio'], [type='file'], [type='color']):not(:disabled),
+  input::file-selector-button,
+  input::-webkit-calendar-picker-indicator,
+  label:has(
+    input:is([type='checkbox'], [type='radio']):not(:disabled),
+    [role='radio'],
+    [role='checkbox'],
+    [role='switch']
+  ) {
+    cursor: pointer;
+  }
+  :is(button, select, input):disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+  /* Barras de desplazamiento finas y del color de la superficie (en Windows la del sistema es blanca) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 22%, transparent) transparent;
+  }
+}
+
+@layer components {
+  /* Titulares con personalidad: Fraunces con óptica automática y un punto de suavidad */
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 30;
+    letter-spacing: -0.015em;
+  }
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brass-ink);
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Superficie oscura de marca con retícula hexagonal */
+  .ink-panel {
+    background-color: var(--ink);
+    background-image:
+      var(--pattern-lattice),
+      radial-gradient(120% 140% at 100% 0%, var(--ink-raised), var(--ink) 60%);
+    background-size:
+      56px 98px,
+      auto;
+    color: var(--ink-foreground);
+  }
+  /* Dentro de los paneles de tinta (barra lateral) la barra de desplazamiento es oscura */
+  .ink-panel,
+  .ink-panel * {
+    scrollbar-color: color-mix(in oklab, var(--ink-muted) 45%, transparent) transparent;
+  }
+  /* Carruseles y barras de pestañas: se desplazan con el dedo o la rueda, sin barra visible */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hairline {
+    background-image: linear-gradient(90deg, var(--brass) 0 2.5rem, var(--border) 2.5rem);
+    height: 1px;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

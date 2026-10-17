@@ -1,0 +1,9 @@
+dist
+coverage
+playwright-report
+test-results
+package-lock.json
+src/types/database.ts
+supabase/.temp
+supabase/.branches
+supabase/tests/**/*.inc
