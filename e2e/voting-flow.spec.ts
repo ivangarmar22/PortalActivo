@@ -78,9 +78,9 @@ test('la administración crea una reunión, añade una pregunta y la gestiona', 
   await page.getByRole('button', { name: 'Crear reunión' }).click()
   await expect(page.getByRole('heading', { name: 'Junta E2E' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Añadir pregunta' }).click()
+  await page.getByRole('button', { name: 'Añadir punto' }).click()
   await page.getByLabel('Pregunta o punto a votar').fill('¿Pintamos el portal?')
-  await page.getByRole('button', { name: 'Añadir pregunta' }).last().click()
+  await page.getByRole('button', { name: 'Añadir punto' }).last().click()
   await expect(page.getByRole('heading', { name: '¿Pintamos el portal?' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Iniciar reunión' }).click()
