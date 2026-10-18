@@ -32,6 +32,7 @@ export type AppErrorCode =
   | 'weak_password'
   | 'wrong_password'
   | 'full_access_required'
+  | 'vote_already_exists'
   // Incidencias
   | 'incident_not_found'
   | 'nothing_to_update'
@@ -69,6 +70,7 @@ const messages: Record<AppErrorCode, string> = {
   weak_password: 'La contraseña debe tener entre 8 y 72 caracteres.',
   wrong_password: 'La contraseña actual no es correcta.',
   full_access_required: 'Esta sección necesita acceso completo con DNI y contraseña.',
+  vote_already_exists: 'Esta vivienda ya ha votado en esta pregunta.',
   incident_not_found: 'La incidencia no existe o no tienes acceso.',
   nothing_to_update: 'No hay cambios que guardar.',
   invalid_file: 'El archivo no es válido.',

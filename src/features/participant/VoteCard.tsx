@@ -1,4 +1,4 @@
-import { CheckCircle2, Loader2, Lock } from 'lucide-react'
+import { CheckCircle2, CircleAlert, Loader2, Lock } from 'lucide-react'
 import { useId, useState } from 'react'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { QuestionStatusBadge } from '@/components/shared/StatusBadge'
@@ -142,13 +142,25 @@ export function VoteCard({
           </Button>
         </form>
       ) : (
-        <div className="mt-4 space-y-4">
+        <div className="mt-4">
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
             <Lock aria-hidden className="size-4" />
             Votación cerrada{question.closed_at && ` el ${formatDateTime(question.closed_at)}`}.
-            {!votedOption && ' No consta voto de tu vivienda.'}
           </p>
-          {result && <ResultBars result={result} />}
+          {question.status === 'closed' && !votedOption && (
+            <p
+              role="status"
+              className="mt-2 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm font-medium text-destructive"
+            >
+              <CircleAlert aria-hidden className="size-4 shrink-0" />
+              No consta voto de tu vivienda.
+            </p>
+          )}
+          {result && (
+            <div className="mt-6">
+              <ResultBars result={result} />
+            </div>
+          )}
         </div>
       )}
 

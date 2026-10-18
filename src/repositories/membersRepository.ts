@@ -8,6 +8,12 @@ export interface MemberInput {
   dni: string
 }
 
+export interface VotingMember {
+  id: string
+  dwelling_label: string
+  full_name: string
+}
+
 export const membersRepository = {
   async listByCommunity(communityId: string): Promise<MemberWithDni[]> {
     const rows = unwrap(
@@ -17,6 +23,20 @@ export const membersRepository = {
         .eq('community_id', communityId),
     )
     return rows.sort((a, b) =>
+      a.dwelling_label.localeCompare(b.dwelling_label, 'es', { numeric: true }),
+    )
+  },
+
+  async listActiveForVoting(communityId: string): Promise<VotingMember[]> {
+    const members = unwrap(
+      await supabase
+        .from('community_members')
+        .select('id, dwelling_label, full_name')
+        .eq('community_id', communityId)
+        .eq('is_active', true)
+        .order('dwelling_label'),
+    )
+    return members.sort((a, b) =>
       a.dwelling_label.localeCompare(b.dwelling_label, 'es', { numeric: true }),
     )
   },

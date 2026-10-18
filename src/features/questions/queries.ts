@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { meetingScopedKeys, queryKeys } from '@/hooks/queryKeys'
-import { errorMessage } from '@/lib/errors'
+import { errorMessage, toAppError } from '@/lib/errors'
 import { pluralize } from '@/lib/format'
 import { questionsRepository, type QuestionInput } from '@/repositories/questionsRepository'
+import { votesRepository } from '@/repositories/votesRepository'
 
 export function useQuestions(meetingId: string, options: { refetchInterval?: number } = {}) {
   return useQuery({
@@ -108,4 +109,27 @@ export function useCloseOpen(meetingId: string) {
         ? `Se han cerrado ${pluralize(count, 'pregunta', 'preguntas')}`
         : 'No había preguntas abiertas',
   )
+}
+
+export function useRecordManualVote(meetingId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { questionId: string; memberId: string; optionId: string }) =>
+      votesRepository.recordManual(input),
+    onSuccess: () => {
+      for (const key of meetingScopedKeys(meetingId)) {
+        void queryClient.invalidateQueries({ queryKey: key })
+      }
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      toast.success('Voto presencial registrado')
+    },
+    onError: (error) => {
+      if (toAppError(error).code !== 'vote_already_exists') {
+        toast.error(errorMessage(error))
+      }
+      for (const key of meetingScopedKeys(meetingId)) {
+        void queryClient.invalidateQueries({ queryKey: key })
+      }
+    },
+  })
 }

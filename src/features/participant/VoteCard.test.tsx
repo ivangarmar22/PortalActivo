@@ -119,5 +119,22 @@ describe('VoteCard', () => {
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /votar/i })).not.toBeInTheDocument()
     expect(screen.getByText(/Votación cerrada/)).toBeInTheDocument()
+    const noVoteNotice = screen.getByRole('status')
+    expect(noVoteNotice).toHaveTextContent('No consta voto de tu vivienda.')
+    expect(noVoteNotice).toHaveClass('text-destructive')
+  })
+
+  it('una pregunta cerrada con voto no muestra el aviso de voto ausente', () => {
+    render(
+      <VoteCard
+        meetingId="m1"
+        question={question({ status: 'closed', closed_at: '2026-10-16T17:00:00Z' })}
+        myVote={{ question_id: 'q1', option_id: 'a', updated_at: '2026-10-16T16:45:00Z' }}
+        result={undefined}
+      />,
+      { wrapper },
+    )
+    expect(screen.getByText(/Tu voto:/)).toHaveTextContent('Presupuesto A')
+    expect(screen.queryByText('No consta voto de tu vivienda.')).not.toBeInTheDocument()
   })
 })

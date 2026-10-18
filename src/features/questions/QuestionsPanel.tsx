@@ -10,24 +10,40 @@ import {
   RotateCcw,
   Square,
   Trash2,
+  UserRound,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/States'
 import { QuestionStatusBadge } from '@/components/shared/StatusBadge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { FormField } from '@/components/shared/FormField'
+import { Input } from '@/components/ui/input'
+import { NativeSelect } from '@/components/shared/NativeSelect'
+import { useVotingMembers } from '@/features/members/queries'
 import { QuestionEditorDialog } from '@/features/questions/QuestionEditorDialog'
+import { useMeetingVotes } from '@/features/results/queries'
 import {
   useCloseOpen,
   useCloseQuestion,
   useDeleteQuestion,
   useOpenEligible,
   useOpenQuestion,
+  useRecordManualVote,
   useReopenQuestion,
   useReorderQuestions,
   useSaveQuestion,
 } from '@/features/questions/queries'
+import { errorMessage, toAppError } from '@/lib/errors'
 import { formatDateTime, formatPercent, pluralize } from '@/lib/format'
 import type { Meeting, QuestionResult, QuestionWithOptions } from '@/types/domain'
 
@@ -50,6 +66,11 @@ export function QuestionsPanel({
 }) {
   const [editing, setEditing] = useState<QuestionWithOptions | 'new' | null>(null)
   const [pending, setPending] = useState<PendingAction | null>(null)
+  const [recordingQuestion, setRecordingQuestion] = useState<QuestionWithOptions | null>(null)
+  const [memberSearch, setMemberSearch] = useState('')
+  const [selectedMemberId, setSelectedMemberId] = useState('')
+  const [selectedOptionId, setSelectedOptionId] = useState('')
+  const [recordError, setRecordError] = useState<string | null>(null)
 
   const saveQuestion = useSaveQuestion(meeting.id)
   const deleteQuestion = useDeleteQuestion(meeting.id)
@@ -59,12 +80,60 @@ export function QuestionsPanel({
   const reopenQuestion = useReopenQuestion(meeting.id)
   const openEligible = useOpenEligible(meeting.id)
   const closeOpen = useCloseOpen(meeting.id)
+  const recordManualVote = useRecordManualVote(meeting.id)
+  const votingMembers = useVotingMembers(meeting.community_id, recordingQuestion !== null)
+  const meetingVotes = useMeetingVotes(meeting.id, recordingQuestion !== null)
 
   const readOnly = meeting.status === 'finished'
   const live = meeting.status === 'in_progress'
   const eligible = questions.filter(isEligible)
   const openQuestions = questions.filter((q) => q.status === 'open')
   const resultsById = new Map(results.map((r) => [r.id, r]))
+  const questionVotedMemberIds = new Set(
+    (meetingVotes.data ?? [])
+      .filter((vote) => vote.question_id === recordingQuestion?.id)
+      .map((vote) => vote.member_id),
+  )
+  const filteredMembers = (votingMembers.data ?? []).filter(
+    (member) =>
+      !questionVotedMemberIds.has(member.id) &&
+      `${member.dwelling_label} ${member.full_name}`
+        .toLocaleLowerCase('es')
+        .includes(memberSearch.trim().toLocaleLowerCase('es')),
+  )
+  const selectedMemberAvailable = filteredMembers.some((member) => member.id === selectedMemberId)
+
+  function closeManualVoteDialog() {
+    setRecordingQuestion(null)
+    setMemberSearch('')
+    setSelectedMemberId('')
+    setSelectedOptionId('')
+    setRecordError(null)
+  }
+
+  async function submitManualVote() {
+    if (!recordingQuestion || !selectedMemberAvailable || !selectedOptionId) return
+    await recordManualVote.mutateAsync({
+      questionId: recordingQuestion.id,
+      memberId: selectedMemberId,
+      optionId: selectedOptionId,
+    })
+    closeManualVoteDialog()
+  }
+
+  async function handleManualVoteSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    try {
+      setRecordError(null)
+      await submitManualVote()
+    } catch (error) {
+      setRecordError(
+        toAppError(error).code === 'vote_already_exists'
+          ? 'Esta vivienda ya ha votado en este punto. No se ha modificado su voto.'
+          : errorMessage(error),
+      )
+    }
+  }
 
   function move(index: number, delta: -1 | 1) {
     const ids = questions.map((q) => q.id)
@@ -198,13 +267,18 @@ export function QuestionsPanel({
                       </Button>
                     )}
                     {q.status === 'open' && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setPending({ kind: 'close', question: q })}
-                      >
-                        <Square aria-hidden /> Cerrar votación
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => setPending({ kind: 'close', question: q })}
+                        >
+                          <Square aria-hidden /> Cerrar votación
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setRecordingQuestion(q)}>
+                          <UserRound aria-hidden /> Registrar voto presencial
+                        </Button>
+                      </>
                     )}
                     {q.status === 'closed' && live && (
                       <Button
@@ -274,6 +348,132 @@ export function QuestionsPanel({
           })
         }
       />
+
+      <Dialog
+        open={recordingQuestion !== null}
+        onOpenChange={(open) => !open && !recordManualVote.isPending && closeManualVoteDialog()}
+      >
+        <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Registrar voto presencial</DialogTitle>
+            <DialogDescription>
+              {recordingQuestion?.title}. El voto quedará marcado como presencial, junto con el
+              administrador que lo registre y la hora.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleManualVoteSubmit} className="grid gap-4">
+            {votingMembers.isError && (
+              <Alert variant="destructive">
+                <AlertDescription>{errorMessage(votingMembers.error)}</AlertDescription>
+              </Alert>
+            )}
+            {meetingVotes.isError && (
+              <Alert variant="destructive">
+                <AlertDescription>{errorMessage(meetingVotes.error)}</AlertDescription>
+              </Alert>
+            )}
+            {recordError && (
+              <Alert variant="destructive">
+                <AlertDescription>{recordError}</AlertDescription>
+              </Alert>
+            )}
+            {meetingVotes.isFetching && (
+              <p className="text-sm text-muted-foreground">Comprobando quién ha votado…</p>
+            )}
+            <FormField label="Buscar vecino">
+              <Input
+                type="search"
+                value={memberSearch}
+                onChange={(event) => {
+                  setMemberSearch(event.target.value)
+                  setSelectedMemberId('')
+                  setRecordError(null)
+                }}
+                placeholder="Por vivienda o nombre"
+              />
+            </FormField>
+            <FormField label="Vivienda y vecino">
+              <NativeSelect
+                value={selectedMemberId}
+                onChange={(event) => {
+                  setSelectedMemberId(event.target.value)
+                  setRecordError(null)
+                }}
+                disabled={
+                  votingMembers.isPending ||
+                  votingMembers.isError ||
+                  meetingVotes.isFetching ||
+                  meetingVotes.isError
+                }
+              >
+                <option value="">Selecciona una vivienda</option>
+                {!meetingVotes.isFetching &&
+                  !meetingVotes.isError &&
+                  !votingMembers.isError &&
+                  filteredMembers.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.dwelling_label} · {member.full_name}
+                    </option>
+                  ))}
+              </NativeSelect>
+            </FormField>
+            <FormField label="Opción comunicada por el vecino">
+              <NativeSelect
+                value={selectedOptionId}
+                onChange={(event) => {
+                  setSelectedOptionId(event.target.value)
+                  setRecordError(null)
+                }}
+                disabled={!recordingQuestion}
+              >
+                <option value="">Selecciona una opción</option>
+                {recordingQuestion?.answer_options.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </NativeSelect>
+            </FormField>
+            {!meetingVotes.isFetching &&
+              !meetingVotes.isError &&
+              !votingMembers.isError &&
+              votingMembers.data &&
+              filteredMembers.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {votingMembers.data.length === 0
+                    ? 'No hay viviendas activas disponibles para votar.'
+                    : memberSearch.trim()
+                      ? 'No hay vecinos sin voto que coincidan con la búsqueda.'
+                      : 'Todas las viviendas activas ya han votado en este punto.'}
+                </p>
+              )}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeManualVoteDialog}
+                disabled={recordManualVote.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  !selectedMemberAvailable ||
+                  !selectedOptionId ||
+                  votingMembers.isPending ||
+                  votingMembers.isError ||
+                  meetingVotes.isFetching ||
+                  meetingVotes.isError ||
+                  recordManualVote.isPending
+                }
+              >
+                Registrar voto
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={pending?.kind === 'close'}

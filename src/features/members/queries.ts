@@ -11,6 +11,14 @@ export function useMembers(communityId: string) {
   })
 }
 
+export function useVotingMembers(communityId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.votingMembers(communityId),
+    queryFn: () => membersRepository.listActiveForVoting(communityId),
+    enabled,
+  })
+}
+
 export function useMemberAccess(communityId: string) {
   return useQuery({
     queryKey: queryKeys.memberAccess(communityId),

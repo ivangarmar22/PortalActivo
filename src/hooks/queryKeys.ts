@@ -7,6 +7,7 @@ export const queryKeys = {
   meetingVotes: (meetingId: string) => ['meetingVotes', meetingId] as const,
   myVotes: (meetingId: string) => ['myVotes', meetingId] as const,
   members: (communityId: string) => ['members', communityId] as const,
+  votingMembers: (communityId: string) => ['votingMembers', communityId] as const,
   memberAccess: (communityId: string) => ['memberAccess', communityId] as const,
   adminCounters: (communityId: string) => ['adminCounters', communityId] as const,
 

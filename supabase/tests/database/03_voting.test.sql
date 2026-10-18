@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(40);
+select plan(46);
 
 insert into auth.users (instance_id, id, aud, role, is_anonymous, created_at, updated_at)
 values ('00000000-0000-0000-0000-000000000000', '99999999-0000-4000-8000-000000000011', 'authenticated', 'authenticated', true, now(), now()),
@@ -138,6 +138,60 @@ select is(
   26, 'el detalle nominal incluye todos los votos de la reunión'
 );
 
+-- ================================================================ voto presencial
+select lives_ok(
+  $$ select public.admin_record_vote(
+    'f0000000-0000-4000-8000-000000000004',
+    'd0000000-0000-4000-8000-000000000004',
+    'b0000000-0000-4000-8000-000000000009'
+  ) $$, 'administración registra un voto presencial para una vivienda activa'
+);
+select is(
+  (select recorded_by_name is not null from votes
+   where question_id = 'f0000000-0000-4000-8000-000000000004'
+     and member_id = 'd0000000-0000-4000-8000-000000000004'),
+  true, 'el voto presencial conserva el nombre de quien lo registró'
+);
+select throws_ok(
+  $$ select public.admin_record_vote(
+    'f0000000-0000-4000-8000-000000000004',
+    'd0000000-0000-4000-8000-000000000003',
+    'b0000000-0000-4000-8000-000000000010'
+  ) $$,
+  'P0001', 'vote_already_exists', 'administración no puede registrar sobre una vivienda que ya votó'
+);
+select is(
+  jsonb_array_length((
+    select manual_history
+    from public.admin_meeting_votes('e0000000-0000-4000-8000-000000000002')
+    where question_id = 'f0000000-0000-4000-8000-000000000004'
+      and dwelling_label = '2º B'
+  )),
+  1, 'el detalle nominal muestra el historial del registro presencial'
+);
+select is(
+  (select manual_history -> 0 ->> 'option_label'
+   from public.admin_meeting_votes('e0000000-0000-4000-8000-000000000002')
+   where question_id = 'f0000000-0000-4000-8000-000000000004'
+     and dwelling_label = '2º B'),
+  'Presupuesto A', 'la auditoría conserva la opción registrada'
+);
+
+reset role;
+select set_config('request.jwt.claims', '{"sub":"99999999-0000-4000-8000-000000000011","role":"authenticated","is_anonymous":true}', true);
+set local role authenticated;
+select throws_ok(
+  $$ select public.admin_record_vote(
+    'f0000000-0000-4000-8000-000000000004',
+    'd0000000-0000-4000-8000-000000000004',
+    'b0000000-0000-4000-8000-000000000010'
+  ) $$,
+  '42501', 'forbidden', 'un vecino no puede registrar votos en nombre de otras viviendas'
+);
+reset role;
+select set_config('request.jwt.claims', '{"sub":"a0000000-0000-4000-8000-000000000001","role":"authenticated","is_anonymous":false}', true);
+set local role authenticated;
+
 -- Cierre individual
 select lives_ok($$ select public.close_question('f0000000-0000-4000-8000-000000000004') $$, 'cerrar una pregunta abierta');
 select throws_ok(
@@ -160,7 +214,7 @@ set local role authenticated;
 select lives_ok($$ select public.reopen_question('f0000000-0000-4000-8000-000000000004') $$, 'reabrir una pregunta cerrada');
 select is(
   (select count(*) from votes where question_id = 'f0000000-0000-4000-8000-000000000004')::int,
-  4, 'la reapertura conserva los votos anteriores'
+  5, 'la reapertura conserva los votos anteriores, incluidos los registrados presencialmente'
 );
 select is(
   (select reopen_count from questions where id = 'f0000000-0000-4000-8000-000000000004'), 1,

@@ -26,7 +26,15 @@ export type MeetingResultRow = Omit<
   question_opened_at: string | null
   question_closed_at: string | null
 }
-export type MeetingVoteRow = Functions['admin_meeting_votes']['Returns'][number]
+export interface ManualVoteAudit {
+  option_label: string
+  changed_by_name: string
+  changed_at: string
+}
+export type MeetingVoteRow = Omit<
+  Functions['admin_meeting_votes']['Returns'][number],
+  'manual_history'
+> & { manual_history: ManualVoteAudit[] }
 
 /** full: DNI + contraseña (todo el portal) · vote: acceso de solo votación (solo PIN). */
 type AccessScope = 'full' | 'vote'

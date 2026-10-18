@@ -471,14 +471,14 @@ isOneToOne: false
                   ]
                 },"votes": {
                   Row: {
-                    "created_at": string,"id": string,"member_id": string,"option_id": string,"question_id": string,"updated_at": string
+                    "created_at": string,"id": string,"member_id": string,"option_id": string,"question_id": string,"recorded_by": string | null,"recorded_by_name": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"member_id": string,"option_id": string,"question_id": string,"updated_at"?: string
+                    "created_at"?: string,"id"?: string,"member_id": string,"option_id": string,"question_id": string,"recorded_by"?: string | null,"recorded_by_name"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"member_id"?: string,"option_id"?: string,"question_id"?: string,"updated_at"?: string
+                    "created_at"?: string,"id"?: string,"member_id"?: string,"option_id"?: string,"question_id"?: string,"recorded_by"?: string | null,"recorded_by_name"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -495,6 +495,33 @@ isOneToOne: false
       referencedColumns: ["question_id","id"]
     },{
       foreignKeyName: "votes_question_id_fkey"
+      columns: ["question_id"]
+isOneToOne: false
+      referencedRelation: "questions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                }
+                ,"admin_vote_audit": {
+                  Row: {
+                    "changed_at": string,"changed_by": string | null,"changed_by_name": string,"id": number,"member_id": string,"option_label": string,"question_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "changed_at"?: string,"changed_by"?: string | null,"changed_by_name": string,"id"?: never,"member_id": string,"option_label": string,"question_id": string
+                  }
+                  Update: {
+                    "changed_at"?: string,"changed_by"?: string | null,"changed_by_name"?: string,"id"?: never,"member_id"?: string,"option_label"?: string,"question_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "admin_vote_audit_member_id_fkey"
+      columns: ["member_id"]
+isOneToOne: false
+      referencedRelation: "community_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "admin_vote_audit_question_id_fkey"
       columns: ["question_id"]
 isOneToOne: false
       referencedRelation: "questions"
@@ -530,8 +557,11 @@ isOneToOne: false
                            },
 "admin_meeting_votes":
 { Args: { "p_meeting_id": string }; Returns: {
-              "dwelling_label": string,"full_name": string,"option_label": string,"question_id": string,"question_position": number,"question_title": string,"updated_at": string,"voted_at": string
+              "dwelling_label": string,"full_name": string,"manual_history": Json,"member_id": string,"option_label": string,"question_id": string,"question_position": number,"question_title": string,"recorded_by_name": string | null,"updated_at": string,"voted_at": string
             }[]
+                           },
+"admin_record_vote":
+{ Args: { "p_member_id": string,"p_option_id": string,"p_question_id": string }; Returns: undefined
                            },
 "admin_member_access_status":
 { Args: { "p_community_id": string }; Returns: {

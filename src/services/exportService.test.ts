@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildResultsCsv, slugify, toCsv } from '@/services/exportService'
-import type { QuestionResult } from '@/types/domain'
+import { buildResultsCsv, buildVotesCsv, slugify, toCsv } from '@/services/exportService'
+import type { MeetingVoteRow, QuestionResult } from '@/types/domain'
 
 describe('toCsv', () => {
   it('usa ";" como separador, CRLF y BOM UTF-8', () => {
@@ -48,6 +48,36 @@ describe('buildResultsCsv', () => {
     const lines = buildResultsCsv(results).slice(1).trim().split('\r\n')
     expect(lines).toHaveLength(3)
     expect(lines[1]).toBe('1;Cuentas;Abierta;A favor;2;66,7;3;10;30,0;')
+  })
+})
+
+describe('buildVotesCsv', () => {
+  it('incluye el origen y el historial de los votos registrados presencialmente', () => {
+    const votes: MeetingVoteRow[] = [
+      {
+        member_id: 'member-1',
+        question_id: 'q1',
+        question_position: 1,
+        question_title: 'Presupuesto',
+        dwelling_label: '2º B',
+        full_name: 'David Navarro Gil',
+        option_label: 'Presupuesto B',
+        voted_at: '2026-10-18T16:00:00Z',
+        updated_at: '2026-10-18T16:10:00Z',
+        recorded_by_name: 'Ana García',
+        manual_history: [
+          {
+            option_label: 'Presupuesto A',
+            changed_by_name: 'Ana García',
+            changed_at: '2026-10-18T16:00:00Z',
+          },
+        ],
+      },
+    ]
+    const csv = buildVotesCsv(votes).slice(1)
+    expect(csv).toContain('Origen;Registrado por;Historial presencial')
+    expect(csv).toContain('Presencial;Ana García;')
+    expect(csv).toContain('Registrado por Ana García: Presupuesto A')
   })
 })
 

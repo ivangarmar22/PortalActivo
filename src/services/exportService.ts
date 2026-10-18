@@ -50,13 +50,32 @@ export function buildResultsCsv(results: QuestionResult[]): string {
 }
 
 export function buildVotesCsv(votes: MeetingVoteRow[]): string {
-  const header = ['Nº', 'Pregunta', 'Vivienda', 'Nombre', 'Opción', 'Votado', 'Última modificación']
+  const header = [
+    'Nº',
+    'Pregunta',
+    'Vivienda',
+    'Nombre',
+    'Opción',
+    'Origen',
+    'Registrado por',
+    'Historial presencial',
+    'Votado',
+    'Última modificación',
+  ]
   const rows = votes.map((v) => [
     v.question_position,
     v.question_title,
     v.dwelling_label,
     v.full_name,
     v.option_label,
+    v.recorded_by_name ? 'Presencial' : 'Aplicación',
+    v.recorded_by_name,
+    v.manual_history
+      .map(
+        (entry) =>
+          `Registrado por ${entry.changed_by_name}: ${entry.option_label} · ${formatDateTime(entry.changed_at)}`,
+      )
+      .join(' | '),
     formatDateTime(v.voted_at),
     formatDateTime(v.updated_at),
   ])

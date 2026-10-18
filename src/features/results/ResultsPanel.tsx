@@ -50,6 +50,7 @@ function NominalVotes({ meetingId }: { meetingId: string }) {
             <TableHead>Vivienda</TableHead>
             <TableHead>Nombre</TableHead>
             <TableHead>Opción</TableHead>
+            <TableHead>Registro</TableHead>
             <TableHead className="whitespace-nowrap">Última modificación</TableHead>
           </TableRow>
         </TableHeader>
@@ -60,6 +61,26 @@ function NominalVotes({ meetingId }: { meetingId: string }) {
               <TableCell className="whitespace-nowrap">{v.dwelling_label}</TableCell>
               <TableCell className="whitespace-nowrap">{v.full_name}</TableCell>
               <TableCell>{v.option_label}</TableCell>
+              <TableCell className="min-w-48 text-sm">
+                <div className="space-y-1">
+                  <p>{v.recorded_by_name ? `Presencial · ${v.recorded_by_name}` : 'Aplicación'}</p>
+                  {v.manual_history.length > 0 && (
+                    <details>
+                      <summary className="cursor-pointer text-xs text-muted-foreground">
+                        Historial presencial ({v.manual_history.length})
+                      </summary>
+                      <ol className="mt-1 space-y-1 text-xs text-muted-foreground">
+                        {v.manual_history.map((entry, index) => (
+                          <li key={`${entry.changed_at}-${index}`}>
+                            Registrado por {entry.changed_by_name}: {entry.option_label} ·{' '}
+                            {formatDateTime(entry.changed_at)}
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  )}
+                </div>
+              </TableCell>
               <TableCell className="tabular text-sm whitespace-nowrap text-muted-foreground">
                 {formatDateTime(v.updated_at)}
               </TableCell>
