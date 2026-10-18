@@ -85,7 +85,7 @@ export function MembersPage() {
     <>
       <PageHeader
         eyebrow="Administración"
-        title="Censo y accesos"
+        title="Vecinos"
         description="Una fila por vivienda (un voto por vivienda). El PIN se entrega en mano: sirve para votar y para que el vecino cree su contraseña la primera vez."
         actions={
           <>

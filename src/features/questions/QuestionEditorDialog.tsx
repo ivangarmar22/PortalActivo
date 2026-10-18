@@ -70,7 +70,9 @@ export function QuestionEditorDialog({
     <Dialog open={open} onOpenChange={(next) => !isSubmitting && onOpenChange(next)}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{question ? 'Editar pregunta' : 'Nueva pregunta'}</DialogTitle>
+          <DialogTitle>
+            {question ? 'Editar punto del orden del día' : 'Nuevo punto del orden del día'}
+          </DialogTitle>
           <DialogDescription>
             Respuesta de selección única. Cuando la pregunta se abra ya no se podrá modificar.
           </DialogDescription>
@@ -182,7 +184,7 @@ export function QuestionEditorDialog({
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 aria-hidden className="animate-spin" />}
-              {question ? 'Guardar cambios' : 'Añadir pregunta'}
+              {question ? 'Guardar cambios' : 'Añadir punto'}
             </Button>
           </DialogFooter>
         </form>

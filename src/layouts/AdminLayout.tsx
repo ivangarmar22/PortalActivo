@@ -78,7 +78,7 @@ function useNavGroups(communityId: string): { label: string; items: NavItem[] }[
     },
     {
       label: 'Administración',
-      items: [{ to: '/admin/censo', label: 'Censo y accesos', icon: Users }],
+      items: [{ to: '/admin/censo', label: 'Vecinos', icon: Users }],
     },
   ]
 }
@@ -151,7 +151,7 @@ function SidebarContent({
       <nav
         ref={navRef}
         aria-label="Administración"
-        className="flex-1 space-y-4 overflow-y-auto px-3 pt-1 pb-4 [mask-image:linear-gradient(to_bottom,transparent,black_14px,black_calc(100%-20px),transparent)]"
+        className="flex-1 space-y-4 overflow-y-auto px-3 pt-1 pb-4 [mask-image:linear-gradient(to_bottom,black,black_calc(100%-20px),transparent)]"
       >
         {groups.map((group) => (
           <div key={group.label}>

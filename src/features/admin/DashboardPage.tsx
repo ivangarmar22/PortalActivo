@@ -231,26 +231,46 @@ export function DashboardPage() {
       ) : (
         <>
           <section aria-label="Indicadores" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Metric
-              label="Juntas en curso"
-              value={dashboard.data.meetings.in_progress}
-              detail={`${dashboard.data.meetings.total} juntas en total`}
-            />
-            <Metric
-              label="Votaciones abiertas"
-              value={dashboard.data.questions.open}
-              detail={`${dashboard.data.questions.closed} cerradas`}
-            />
-            <Metric
-              label="Incidencias activas"
-              value={counters.data?.openIncidents ?? '—'}
-              detail={`${counters.data?.newIncidents ?? 0} sin revisar`}
-            />
-            <Metric
-              label="Viviendas en el censo"
-              value={dashboard.data.members_active}
-              detail="Activas (base de la participación)"
-            />
+            <Link
+              to="/admin/reuniones"
+              className="block rounded-2xl transition-transform hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              <Metric
+                label="Juntas en curso"
+                value={dashboard.data.meetings.in_progress}
+                detail={`${dashboard.data.meetings.total} juntas en total`}
+              />
+            </Link>
+            <Link
+              to={live[0] ? `/admin/reuniones/${live[0].id}` : '/admin/reuniones'}
+              className="block rounded-2xl transition-transform hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              <Metric
+                label="Votaciones abiertas"
+                value={dashboard.data.questions.open}
+                detail={`${dashboard.data.questions.closed} cerradas`}
+              />
+            </Link>
+            <Link
+              to="/admin/incidencias"
+              className="block rounded-2xl transition-transform hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              <Metric
+                label="Incidencias activas"
+                value={counters.data?.openIncidents ?? '—'}
+                detail={`${counters.data?.newIncidents ?? 0} sin revisar`}
+              />
+            </Link>
+            <Link
+              to="/admin/censo"
+              className="block rounded-2xl transition-transform hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              <Metric
+                label="Viviendas en el censo"
+                value={dashboard.data.members_active}
+                detail="Activas (base de la participación)"
+              />
+            </Link>
           </section>
 
           <Section

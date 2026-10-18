@@ -87,7 +87,7 @@ export function MeetingFormDialog({
           <FormField label="Descripción (opcional)" error={errors.description?.message}>
             <Textarea
               rows={4}
-              placeholder="Orden del día o información para los propietarios"
+              placeholder="Información general para los propietarios sobre la junta"
               {...form.register('description')}
             />
           </FormField>

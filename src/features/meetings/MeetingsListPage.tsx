@@ -58,7 +58,7 @@ export function MeetingsListPage() {
       <PageHeader
         eyebrow="Gobierno"
         title="Juntas y votaciones"
-        description="Crea reuniones, prepara sus preguntas y controla las votaciones."
+        description="Crea juntas, prepara su orden del día y controla las votaciones."
         actions={
           <Button onClick={() => setCreating(true)}>
             <CalendarPlus aria-hidden /> Nueva reunión
@@ -106,7 +106,7 @@ export function MeetingsListPage() {
           }
           description={
             meetings.data.length === 0
-              ? 'Crea la primera para empezar a preparar sus preguntas.'
+              ? 'Crea la primera para empezar a preparar su orden del día.'
               : undefined
           }
           action={

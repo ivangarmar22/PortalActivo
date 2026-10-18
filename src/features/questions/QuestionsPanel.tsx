@@ -79,8 +79,8 @@ export function QuestionsPanel({
       {meeting.status === 'draft' && (
         <Alert>
           <AlertDescription>
-            Prepara aquí las preguntas. Para abrir votaciones, primero inicia la reunión. Iniciarla
-            no abre ninguna pregunta automáticamente.
+            Prepara aquí los puntos del orden del día. Para abrir votaciones, primero inicia la
+            reunión. Iniciarla no abre ninguna pregunta automáticamente.
           </AlertDescription>
         </Alert>
       )}
@@ -123,12 +123,12 @@ export function QuestionsPanel({
       {questions.length === 0 ? (
         <EmptyState
           icon={MessageSquareText}
-          title="Esta reunión no tiene preguntas"
+          title="El orden del día está vacío"
           description={readOnly ? undefined : 'Añade los puntos que se van a votar.'}
           action={
             !readOnly && (
               <Button onClick={() => setEditing('new')}>
-                <ListPlus aria-hidden /> Añadir pregunta
+                <ListPlus aria-hidden /> Añadir punto
               </Button>
             )
           }
